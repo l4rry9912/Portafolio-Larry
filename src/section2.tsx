@@ -112,7 +112,7 @@ function Section2() {
                                     </Swiper>
                                 </div>
 
-                                <p className="text-white text-center mt-5 py-4 flex-1 backdrop-blur-sm  rounded-2xl shadow-2xl">
+                                <p className="text-white text-center mt-5 py-4 flex-1 backdrop-blur-sm rounded-2xl shadow-2xl">
                                     {project.description}
                                 </p>
 

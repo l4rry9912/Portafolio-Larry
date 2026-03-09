@@ -1,4 +1,3 @@
-import React from 'react';
 import { FaGithub, FaLinkedin, FaEnvelope, FaInstagram, FaPhone } from 'react-icons/fa';
 import { Zenitho } from 'uvcanvas';
 
