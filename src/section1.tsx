@@ -44,7 +44,7 @@ function Section1() {
                     <div className="flex flex-col md:flex-row items-center md:space-x-12 space-y-8 md:space-y-0 max-w-6xl w-full text-center">
 
                         <div className="flex-1 flex flex-col justify-center items-center text-center max-w-3xl space-y-6">
-                            <h1 className="text-2xl sm:text-xl md:text-2xl lg:text-3xl font-bold text-white text-center pt-10">
+                            <h1 className="text-xl sm:text-lg md:text-xl lg:text-2xl font-bold text-white text-center pt-10">
                                 Soy desarrollador de software y me apasiona el mundo de la tecnología y la programación. Me gusta aprender y experimentar con nuevas herramientas que me permitan construir proyectos funcionales y seguir mejorando mis habilidades técnicas.
                             </h1>
                         </div>
@@ -62,14 +62,14 @@ function Section1() {
                     {/* Botones */}
                     <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6">
                         <button
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg px-12 py-4 rounded-full transition-transform transform hover:scale-105"
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg px-6 py-4 rounded-full transition-transform transform hover:scale-105"
                             onClick={handleScroll}
                         >
                             Ver Proyectos
                         </button>
 
                         <button
-                            className="border-2 border-blue-600 hover:bg-blue-600 hover:text-white text-blue-600 font-bold text-lg px-12 py-4 rounded-full transition-transform transform hover:scale-105"
+                            className="border-2 border-blue-600 hover:bg-blue-600 hover:text-white text-blue-600 font-bold text-lg px-6 py-4 rounded-full transition-transform transform hover:scale-105"
                             onClick={handleDownloadCV}
                             disabled={loading}
                         >
