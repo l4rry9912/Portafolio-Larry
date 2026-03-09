@@ -17,7 +17,6 @@ function Section1() {
         setLoading(true);
         setMessage('');
 
-        // Use direct link click instead of heavy DOM manipulation
         const link = document.createElement('a');
         link.href = PERSONAL_INFO.cvUrl;
         link.download = 'cv-larry-rodriguez.pdf';
@@ -32,61 +31,66 @@ function Section1() {
     };
 
     return (
-        <div className="relative h-screen w-screen overflow-hidden bg-gray-900">
+        <section className="relative min-h-screen w-full flex flex-col justify-center items-center bg-gray-900 py-20 px-4 overflow-hidden">
             {/* Fondo animado */}
-            <LiquidEther />
+            <div className="absolute inset-0 z-0">
+                <LiquidEther />
+            </div>
 
-            {/* Contenido central */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-4 w-full z-10">
-                <section className="min-h-screen flex flex-col justify-center items-center space-y-12">
+            {/* Contenido */}
+            <div className="relative z-10 flex flex-col items-center space-y-10 md:space-y-16 w-full max-w-6xl">
 
-                    <div className="flex flex-col md:flex-row items-center md:space-x-12 space-y-8 md:space-y-0 max-w-6xl w-full text-center">
+                <div className="flex flex-col md:flex-row items-center justify-between w-full gap-8 md:gap-12">
+                    {/* Texto */}
+                    <div className="flex-1 order-2 md:order-1 text-center md:text-left">
+                        <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-relaxed md:leading-extra-relaxed">
+                            Soy desarrollador de software y me apasiona el mundo de la tecnología y la programación. Me gusta aprender y experimentar con nuevas herramientas que me permitan construir proyectos funcionales y seguir mejorando mis habilidades técnicas.
+                        </h1>
+                    </div>
 
-                        <div className="flex-1 flex flex-col justify-center items-center text-center max-w-3xl space-y-6">
-                            <h1 className="text-xl sm:text-lg md:text-xl lg:text-2xl font-bold text-white text-center pt-10 leading-relaxed">
-                                Soy desarrollador de software y me apasiona el mundo de la tecnología y la programación. Me gusta aprender y experimentar con nuevas herramientas que me permitan construir proyectos funcionales y seguir mejorando mis habilidades técnicas.
-                            </h1>
-                        </div>
-
-                        {/* Imagen */}
-                        <div className="flex-1 flex justify-center">
+                    {/* Foto */}
+                    <div className="flex-shrink-0 order-1 md:order-2">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-blue-500 rounded-full blur-2xl opacity-20"></div>
                             <img
                                 src="/imagenes/fotoLarry.jpeg"
                                 alt="Foto Larry Rodriguez"
-                                className="rounded-full shadow-2xl border-2 border-dashed border-gray-400 max-w-xs w-full aspect-square object-cover"
+                                className="relative rounded-full shadow-2xl border-4 border-gray-700 w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 object-cover"
                                 loading="eager"
                             />
                         </div>
                     </div>
+                </div>
 
-                    {/* Botones */}
-                    <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6">
-                        <button
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg px-8 py-4 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-lg"
-                            onClick={handleScroll}
-                        >
-                            Ver Proyectos
-                        </button>
+                {/* Botones */}
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 w-full sm:w-auto">
+                    <button
+                        className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg px-10 py-4 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-xl"
+                        onClick={handleScroll}
+                    >
+                        Ver Proyectos
+                    </button>
 
-                        <button
-                            className="border-2 border-blue-600 hover:bg-blue-600 hover:text-white text-blue-600 font-bold text-lg px-8 py-4 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-lg"
-                            onClick={handleDownloadCV}
-                            disabled={loading}
-                        >
-                            {loading ? "Descargando..." : "Descargar CV"}
-                        </button>
-                    </div>
+                    <button
+                        className="w-full sm:w-auto border-2 border-blue-600 hover:bg-blue-600 hover:text-white text-blue-600 font-bold text-lg px-10 py-4 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-xl"
+                        onClick={handleDownloadCV}
+                        disabled={loading}
+                    >
+                        {loading ? "Descargando..." : "Descargar CV"}
+                    </button>
+                </div>
 
-                    {/* Mensaje */}
-                    {message && (
-                        <p className="mt-4 text-green-400 font-semibold text-center animate-fade-in">
-                            {message}
-                        </p>
-                    )}
-                </section>
+                {/* Mensaje */}
+                {message && (
+                    <p className="text-green-400 font-bold text-center animate-bounce">
+                        {message}
+                    </p>
+                )}
             </div>
+
+            {/* Gradiente inferior */}
             <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-gray-900 to-transparent pointer-events-none z-0"></div>
-        </div>
+        </section>
     );
 }
 

@@ -25,8 +25,8 @@ function Section2() {
                             className="group relative rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-gray-800 bg-gray-900/50 backdrop-blur-sm transition-all hover:border-blue-500/50"
                         >
 
-                            {/* Fondo glitch (Optimizado: menor opacidad, solo decorativo) */}
-                            <div className="absolute inset-0 opacity-20 pointer-events-none">
+                            {/* Fondo glitch */}
+                            <div className="absolute inset-0 opacity-10 pointer-events-none">
                                 <LetterGlitch
                                     glitchSpeed={50}
                                     centerVignette={true}
@@ -36,41 +36,39 @@ function Section2() {
                             </div>
 
                             {/* Contenido */}
-                            <div className="relative z-10 flex flex-col h-full p-1">
+                            <div className="relative z-10 flex flex-col h-full">
 
-                                <h3 className="text-2xl font-bold text-center text-white py-4 px-2">
+                                <h3 className="text-2xl font-bold text-center text-white pt-6 pb-2 px-4 italic">
                                     {project.title}
                                 </h3>
 
                                 {/* Swiper */}
-                                <div className="mt-2 px-4">
+                                <div className="mt-4 px-4">
                                     <Swiper
                                         modules={[Navigation, Pagination, Autoplay]}
                                         navigation
                                         pagination={{ clickable: true }}
                                         loop={true}
                                         autoplay={{ delay: 4000, disableOnInteraction: false }}
-                                        spaceBetween={20}
+                                        spaceBetween={10}
                                         slidesPerView={1}
-                                        className="rounded-2xl overflow-hidden shadow-inner"
+                                        className="rounded-2xl overflow-hidden bg-black/40"
                                     >
                                         {project.images.map((img, idx) => (
-                                            <SwiperSlide key={idx}>
-                                                <div className="bg-gray-800/50 flex items-center justify-center">
-                                                    <img
-                                                        src={img}
-                                                        alt={`${project.title} screenshot ${idx + 1}`}
-                                                        className="w-full h-80 object-cover md:object-contain rounded-lg select-none pointer-events-none transform transition-transform group-hover:scale-105 duration-700"
-                                                        loading="lazy"
-                                                    />
-                                                </div>
+                                            <SwiperSlide key={idx} className="flex items-center justify-center h-64 sm:h-80 md:h-96">
+                                                <img
+                                                    src={img}
+                                                    alt={`${project.title} ${idx + 1}`}
+                                                    className="max-w-full max-h-full object-contain select-none pointer-events-none p-2"
+                                                    loading="lazy"
+                                                />
                                             </SwiperSlide>
                                         ))}
                                     </Swiper>
                                 </div>
 
                                 <div className="p-6 flex flex-col flex-1">
-                                    <p className="text-gray-300 text-center leading-relaxed flex-1">
+                                    <p className="text-gray-300 text-center text-sm md:text-base leading-relaxed flex-1">
                                         {project.description}
                                     </p>
 
@@ -79,9 +77,9 @@ function Section2() {
                                             href={project.repoLink}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-full transition-all transform hover:scale-110 active:scale-95 shadow-lg"
+                                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2.5 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-lg text-sm md:text-base"
                                         >
-                                            Repositorio <FaGithub className="text-xl" />
+                                            Github <FaGithub className="text-lg" />
                                         </a>
 
                                         {project.pdfLink && (
@@ -89,9 +87,9 @@ function Section2() {
                                                 href={project.pdfLink}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="flex items-center gap-3 bg-gray-700 hover:bg-gray-600 text-white font-bold px-6 py-3 rounded-full transition-all transform hover:scale-110 active:scale-95 shadow-lg"
+                                                className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-bold px-5 py-2.5 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-lg text-sm md:text-base"
                                             >
-                                                Documentación <FaFilePdf className="text-xl text-red-500" />
+                                                TFG <FaFilePdf className="text-lg text-red-500" />
                                             </a>
                                         )}
                                     </div>
