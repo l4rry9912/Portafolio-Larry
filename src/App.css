@@ -1,0 +1,180 @@
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Glow + profundidad alrededor del fluido WebGL (LiquidEther) */
+.liquid-ether-layer {
+  filter: drop-shadow(0 32px 100px rgba(14, 165, 233, 0.42))
+    drop-shadow(0 0 85px rgba(129, 140, 248, 0.3))
+    drop-shadow(0 -24px 70px rgba(232, 121, 249, 0.12));
+}
+
+.liquid-ether-mount {
+  box-shadow:
+    inset 0 0 140px rgba(15, 23, 42, 0.55),
+    inset 0 -56px 160px rgba(2, 6, 23, 0.72),
+    0 0 100px rgba(14, 165, 233, 0.08);
+}
+
+/* CTAs de scroll largo: transiciones un poco más largas y suaves */
+.scroll-cta {
+  transition:
+    transform 0.4s cubic-bezier(0.33, 1.1, 0.53, 1),
+    box-shadow 0.4s ease,
+    filter 0.35s ease;
+}
+
+.scroll-cta-arrow {
+  will-change: transform;
+}
+
+/* Carnet estilo lanyard (CSS, sin 3D) */
+.lanyard-ui-wrapper {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  transform-origin: center;
+  animation: lanyard-float 4s ease-in-out infinite;
+}
+
+.lanyard-ui-strap {
+  width: 0.2rem;
+  height: 2.2rem;
+  background: linear-gradient(to bottom, #38bdf8, #0ea5e9);
+  border-radius: 999px;
+  box-shadow: 0 6px 12px rgba(15, 23, 42, 0.8);
+}
+
+.lanyard-ui-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  min-width: 15rem;
+  max-width: 18rem;
+  border-radius: 1.3rem;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.35), transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.28), transparent 55%),
+    #020617;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  box-shadow:
+    0 20px 40px rgba(15, 23, 42, 0.95),
+    0 0 0 1px rgba(15, 23, 42, 0.9);
+  transform-origin: center;
+  transition:
+    transform 200ms ease-out,
+    box-shadow 200ms ease-out;
+}
+
+.lanyard-ui-wrapper:hover .lanyard-ui-card {
+  transform: translateY(-4px) rotate3d(1, -1, 0, 6deg) scale(1.02);
+  box-shadow:
+    0 26px 60px rgba(15, 23, 42, 1),
+    0 0 40px rgba(56, 189, 248, 0.75);
+}
+
+.lanyard-ui-photo {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 9999px;
+  overflow: hidden;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.9);
+  border: 2px solid rgba(148, 163, 184, 0.8);
+}
+
+.lanyard-ui-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lanyard-ui-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+}
+
+.lanyard-ui-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.lanyard-ui-header {
+  align-items: baseline;
+  margin-bottom: 0.1rem;
+}
+
+.lanyard-ui-title {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 600;
+  color: #bfdbfe;
+}
+
+.lanyard-ui-company {
+  font-size: 0.63rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #64748b;
+}
+
+.lanyard-ui-label {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #94a3b8;
+}
+
+.lanyard-ui-value {
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.lanyard-ui-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+}
+
+.lanyard-ui-status-label {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #64748b;
+}
+
+.lanyard-ui-status-pill {
+  padding: 0.14rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 197, 94, 0.8);
+  background: rgba(22, 163, 74, 0.18);
+  color: #bbf7d0;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 0 14px rgba(34, 197, 94, 0.7);
+}
+
+@keyframes lanyard-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+}
+
