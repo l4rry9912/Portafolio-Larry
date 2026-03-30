@@ -60,11 +60,11 @@ export default function Lanyard({
   const viewportWidth = useViewportWidth();
   const isMobile = viewportWidth < 768;
   const dprMax = lanyardDprMax(viewportWidth);
-  const envRes = viewportWidth >= 1200 ? 128 : 256;
+  const envRes = viewportWidth >= 1200 ? 256 : viewportWidth >= 768 ? 192 : 128;
 
   return (
     <div
-      className={`relative z-0 w-full h-full flex justify-center items-center ${
+      className={`relative z-0 flex h-full w-full touch-none items-center justify-center ${
         interactive ? 'pointer-events-auto' : 'pointer-events-none'
       }`}
     >
@@ -80,8 +80,12 @@ export default function Lanyard({
           logarithmicDepthBuffer: true,
           premultipliedAlpha: false,
         }}
-        style={{ pointerEvents: interactive ? 'auto' : 'none' }}
+        style={{
+          pointerEvents: interactive ? 'auto' : 'none',
+          touchAction: interactive ? 'none' : 'auto',
+        }}
         onCreated={({ gl }) => {
+          gl.domElement.style.touchAction = interactive ? 'none' : 'auto';
           gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1);
           gl.outputColorSpace = THREE.SRGBColorSpace;
           gl.toneMapping = THREE.ACESFilmicToneMapping;
@@ -91,7 +95,7 @@ export default function Lanyard({
         <AdaptiveDpr />
         <ambientLight intensity={0.55 * Math.PI} />
         <Physics gravity={gravity} timeStep={1 / 60} interpolate>
-          <Band isMobile={isMobile} />
+          <Band isMobile={isMobile} maxSpeed={isMobile ? 32 : 48} minSpeed={isMobile ? 8 : 10} />
         </Physics>
         <Environment
           blur={isMobile ? 0.42 : 0.3}
@@ -123,9 +127,7 @@ function ropeLineWidth(screenW: number, screenH: number): number {
   return THREE.MathUtils.clamp(w, 0.8, 1.2);
 }
 
-function Band({ maxSpeed = 50, minSpeed = 10, isMobile = false }) {
-  const { width: viewW, height: viewH } = useThree((s) => s.size);
-  const lineWidth = ropeLineWidth(viewW, viewH);
+function Band({ maxSpeed = 50, minSpeed = 10 }: { maxSpeed?: number; minSpeed?: number }) {
   const band = useRef<any>(null);
   const fixed = useRef<any>(null);
   const j1 = useRef<any>(null);
@@ -137,10 +139,6 @@ function Band({ maxSpeed = 50, minSpeed = 10, isMobile = false }) {
   const ang = new THREE.Vector3();
   const rot = new THREE.Vector3();
   const dir = new THREE.Vector3();
-  const ropeEndTarget = new THREE.Vector3();
-  const ropeCardQuat = new THREE.Quaternion();
-  const ropeEndSmooth = useRef<THREE.Vector3 | null>(null);
-  const ropeJ3Smooth = useRef<THREE.Vector3 | null>(null);
 
   const segmentProps: any = {
     type: 'dynamic',
@@ -152,51 +150,11 @@ function Band({ maxSpeed = 50, minSpeed = 10, isMobile = false }) {
 
   const { nodes, materials } = useGLTF('/imagenes/card.glb') as any;
   const texture = useTexture('/imagenes/lanyard.png');
-
-  const clipMaterial = useMemo(() => {
-    const m = materials.metal.clone();
-    m.roughness = 0.22;
-    m.metalness = 0.95;
-    m.envMapIntensity = 1.35;
-    m.polygonOffset = true;
-    m.polygonOffsetFactor = 1;
-    m.polygonOffsetUnits = 1;
-    m.depthWrite = true;
-    return m;
-  }, [materials.metal]);
-
-  const clampMaterial = useMemo(() => {
-    const m = materials.metal.clone();
-    m.roughness = 0.28;
-    m.metalness = 0.92;
-    m.envMapIntensity = 1.25;
-    m.polygonOffset = true;
-    m.polygonOffsetFactor = 1;
-    m.polygonOffsetUnits = 1;
-    m.depthWrite = true;
-    return m;
-  }, [materials.metal]);
-
-  useEffect(
-    () => () => {
-      clipMaterial.dispose();
-      clampMaterial.dispose();
-    },
-    [clipMaterial, clampMaterial],
-  );
-
-  useEffect(() => {
-    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    texture.minFilter = THREE.LinearMipmapLinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.anisotropy = 8;
-    texture.needsUpdate = true;
-  }, [texture]);
+  const { width, height } = useThree((state) => state.size);
 
   const [curve] = useState(
     () =>
       new THREE.CatmullRomCurve3([
-        new THREE.Vector3(),
         new THREE.Vector3(),
         new THREE.Vector3(),
         new THREE.Vector3(),
@@ -209,8 +167,7 @@ function Band({ maxSpeed = 50, minSpeed = 10, isMobile = false }) {
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
-  const cardAttachY = 1.45 * (CARD_VISUAL_SCALE / CARD_SCALE_REFERENCE) + ROPE_ATTACH_LIFT;
-  useSphericalJoint(j3, card, [[0, 0, 0], [0, cardAttachY, 0]]);
+  useSphericalJoint(j3, card, [[0, 0, 0], [0, 1.45, 0]]);
 
   useEffect(() => {
     if (hovered) {
@@ -221,21 +178,7 @@ function Band({ maxSpeed = 50, minSpeed = 10, isMobile = false }) {
     }
   }, [hovered, dragged]);
 
-  useEffect(() => {
-    ropeEndSmooth.current = null;
-    ropeJ3Smooth.current = null;
-    const syncLerped = (ref: typeof j1) => {
-      if (!ref.current?.translation) return;
-      const t = ref.current.translation();
-      if (!ref.current.lerped) ref.current.lerped = new THREE.Vector3(t.x, t.y, t.z);
-      else ref.current.lerped.set(t.x, t.y, t.z);
-    };
-    syncLerped(j1);
-    syncLerped(j2);
-  }, [viewW, viewH]);
-
   useFrame((state, delta) => {
-    const dt = THREE.MathUtils.clamp(delta, 1e-4, 1 / 30);
     if (dragged && typeof dragged !== 'boolean') {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
       dir.copy(vec).sub(state.camera.position).normalize();
@@ -249,37 +192,20 @@ function Band({ maxSpeed = 50, minSpeed = 10, isMobile = false }) {
     }
 
     if (fixed.current) {
-      // Jitter fix when over-pulling
       [j1, j2].forEach((ref) => {
         if (!ref.current.lerped) ref.current.lerped = new THREE.Vector3().copy(ref.current.translation());
         const clampedDistance = Math.max(0.1, Math.min(1, ref.current.lerped.distanceTo(ref.current.translation())));
         ref.current.lerped.lerp(
           ref.current.translation(),
-          dt * (minSpeed + clampedDistance * (maxSpeed - minSpeed)),
+          delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed)),
         );
       });
 
-      const ct = card.current.translation();
-      const cr = card.current.rotation();
-      ropeCardQuat.set(cr.x, cr.y, cr.z, cr.w);
-      ropeEndTarget.set(0, cardAttachY, 0).applyQuaternion(ropeCardQuat);
-      ropeEndTarget.x += ct.x;
-      ropeEndTarget.y += ct.y;
-      ropeEndTarget.z += ct.z;
-      const smoothK = 1 - Math.exp(-28 * dt);
-      if (!ropeEndSmooth.current) ropeEndSmooth.current = ropeEndTarget.clone();
-      else ropeEndSmooth.current.lerp(ropeEndTarget, smoothK);
-      curve.points[0].copy(ropeEndSmooth.current);
-
-      const j3p = j3.current.translation();
-      if (!ropeJ3Smooth.current) ropeJ3Smooth.current = new THREE.Vector3(j3p.x, j3p.y, j3p.z);
-      else ropeJ3Smooth.current.lerp(vec.set(j3p.x, j3p.y, j3p.z), smoothK);
-      curve.points[1].copy(ropeJ3Smooth.current);
-
-      curve.points[2].copy(j2.current.lerped);
-      curve.points[3].copy(j1.current.lerped);
-      curve.points[4].copy(fixed.current.translation());
-      band.current.geometry.setPoints(curve.getPoints(56));
+      curve.points[0].copy(j3.current.translation());
+      curve.points[1].copy(j2.current.lerped);
+      curve.points[2].copy(j1.current.lerped);
+      curve.points[3].copy(fixed.current.translation());
+      band.current.geometry.setPoints(curve.getPoints(32));
 
       ang.copy(card.current.angvel());
       rot.copy(card.current.rotation());
@@ -289,8 +215,32 @@ function Band({ maxSpeed = 50, minSpeed = 10, isMobile = false }) {
 
   curve.curveType = 'chordal';
 
-  const cardVisualScale = CARD_VISUAL_SCALE;
-  const colliderMul = cardVisualScale / CARD_SCALE_REFERENCE;
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+  const releasePointer = (e: any) => {
+    if (e?.stopPropagation) e.stopPropagation();
+    if (e?.target?.releasePointerCapture && e?.pointerId != null) {
+      try {
+        e.target.releasePointerCapture(e.pointerId);
+      } catch {
+        /* noop */
+      }
+    }
+    drag(false);
+    hover(false);
+  };
+
+  const startDrag = (e: any) => {
+    if (e.stopPropagation) e.stopPropagation();
+    if (e.target?.setPointerCapture && e.pointerId != null) {
+      try {
+        e.target.setPointerCapture(e.pointerId);
+      } catch {
+        /* noop */
+      }
+    }
+    drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
+  };
 
   return (
     <>
@@ -306,54 +256,40 @@ function Band({ maxSpeed = 50, minSpeed = 10, isMobile = false }) {
           <BallCollider args={[0.1]} />
         </RigidBody>
         <RigidBody position={[2, 0, 0]} ref={card} {...segmentProps} type={dragged ? 'kinematicPosition' : 'dynamic'}>
-          <CuboidCollider args={[0.8 * colliderMul, 1.125 * colliderMul, 0.01]} />
+          <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <group
-            scale={cardVisualScale}
-            position={[0, -0.95, -0.05]}
+            scale={2.25}
+            position={[0, -1.2, -0.05]}
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
-            onPointerUp={(e: any) => {
-              e.target.releasePointerCapture(e.pointerId);
-              drag(false);
-            }}
-            onPointerDown={(e: any) => {
-              e.target.setPointerCapture(e.pointerId);
-              drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
-            }}
+            onPointerUp={releasePointer}
+            onPointerDown={startDrag}
           >
             <mesh geometry={nodes.card.geometry}>
               <meshPhysicalMaterial
                 map={materials.base.map}
                 map-anisotropy={16}
-                envMapIntensity={isMobile ? 1 : 1.35}
-                clearcoat={isMobile ? 0.45 : 1}
-                clearcoatRoughness={isMobile ? 0.28 : 0.11}
-                roughness={isMobile ? 0.55 : 0.38}
-                metalness={0.18}
-                reflectivity={0.55}
-                ior={1.55}
-                specularIntensity={1.15}
-                sheen={0.15}
-                sheenRoughness={0.4}
-                sheenColor="#dde8ff"
+                clearcoat={1}
+                clearcoatRoughness={0.15}
+                roughness={0.3}
+                metalness={0.5}
               />
             </mesh>
-            <mesh geometry={nodes.clip.geometry} material={clipMaterial} />
-            <mesh geometry={nodes.clamp.geometry} material={clampMaterial} />
+            <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
+            <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
           </group>
         </RigidBody>
       </group>
-      <mesh ref={band} renderOrder={-1}>
+      <mesh ref={band}>
         <meshLineGeometry />
         <meshLineMaterial
           color="white"
-          depthTest
-          depthWrite={false}
-          resolution={[viewW, viewH]}
+          depthTest={false}
+          resolution={[width, height]}
           useMap
           map={texture}
-          repeat={[-4, 1]}
-          lineWidth={lineWidth}
+          repeat={[-3, 1]}
+          lineWidth={1}
         />
       </mesh>
     </>

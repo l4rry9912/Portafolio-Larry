@@ -32,11 +32,11 @@ function Section2() {
           {PROJECTS.map((project: (typeof PROJECTS)[number], index: number) => (
             <div
               key={index}
-              className={`group relative flex min-h-0 flex-col overflow-hidden ${surfaceCard} shadow-2xl`}
+              className={`group relative flex min-h-0 flex-col overflow-hidden ${surfaceCard} shadow-lg md:shadow-xl`}
             >
-              <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-3xl opacity-10">
+              <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-3xl opacity-[0.32] md:opacity-[0.28]">
                 <LetterGlitch
-                  glitchSpeed={55}
+                  glitchSpeed={38}
                   centerVignette={true}
                   outerVignette={false}
                   smooth={true}

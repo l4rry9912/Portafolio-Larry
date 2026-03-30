@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 
 const MOBILE_BREAKPOINT_PX = 768;
-/** En escritorio no animamos todas las celdas a la vez; ahorra CPU en grillas grandes. */
-const MAX_LETTERS = 2600;
+/** Móvil: menos celdas = más FPS; escritorio: un poco más de densidad. */
+const MAX_LETTERS_MOBILE = 1500;
+const MAX_LETTERS_DESKTOP = 2400;
 
 export type LetterGlitchProps = {
   glitchColors?: string[];
@@ -59,12 +60,15 @@ function interpolateColor(
 }
 
 /**
- * Columnas/filas que cubren todo el rectángulo con como mucho MAX_LETTERS celdas.
- * cellW/cellH = w/cols y h/rows (sin bandas vacías a los lados).
+ * Columnas/filas que cubren todo el rectángulo con como mucho maxLetters celdas.
  */
-function gridDimensions(w: number, h: number): { cols: number; rows: number; cellW: number; cellH: number } {
+function gridDimensions(
+  w: number,
+  h: number,
+  maxLetters: number
+): { cols: number; rows: number; cellW: number; cellH: number } {
   const MIN_CELL_W = 7;
-  const MIN_CELL_H = 12;
+  const MIN_CELL_H = 11;
   if (w < 1 || h < 1) {
     return { cols: 1, rows: 1, cellW: 1, cellH: 1 };
   }
@@ -72,11 +76,11 @@ function gridDimensions(w: number, h: number): { cols: number; rows: number; cel
   let cols = Math.max(1, Math.ceil(w / MIN_CELL_W));
   let rows = Math.max(1, Math.ceil(h / MIN_CELL_H));
 
-  if (cols * rows > MAX_LETTERS) {
-    const scale = Math.sqrt((cols * rows) / MAX_LETTERS);
+  if (cols * rows > maxLetters) {
+    const scale = Math.sqrt((cols * rows) / maxLetters);
     cols = Math.max(4, Math.floor(cols / scale));
     rows = Math.max(4, Math.floor(rows / scale));
-    while (cols * rows > MAX_LETTERS && (cols > 4 || rows > 4)) {
+    while (cols * rows > maxLetters && (cols > 4 || rows > 4)) {
       if (cols >= rows) cols -= 1;
       else rows -= 1;
     }
@@ -117,9 +121,10 @@ export default function LetterGlitch({
   const lastGlitchTime = useRef(Date.now());
 
   const lettersAndSymbols = Array.from(characters);
+  const maxLettersCap = isMobile ? MAX_LETTERS_MOBILE : MAX_LETTERS_DESKTOP;
 
-  const effectiveGlitchMs = isMobile ? Math.round(glitchSpeed * 1.45) : glitchSpeed;
-  const updateFraction = isMobile ? 0.028 : 0.038;
+  const effectiveGlitchMs = isMobile ? Math.round(glitchSpeed * 1.05) : Math.round(glitchSpeed * 0.88);
+  const updateFraction = isMobile ? 0.05 : 0.065;
 
   const getRandomChar = () => lettersAndSymbols[Math.floor(Math.random() * lettersAndSymbols.length)];
 
@@ -172,7 +177,7 @@ export default function LetterGlitch({
     const cssH = Math.max(1, Math.floor(rect.height));
     cssSizeRef.current = { w: cssW, h: cssH };
 
-    const { cols, rows, cellW, cellH } = gridDimensions(cssW, cssH);
+    const { cols, rows, cellW, cellH } = gridDimensions(cssW, cssH, maxLettersCap);
     grid.current = { columns: cols, rows, cellW, cellH };
 
     canvas.width = cssW * dpr;
@@ -214,7 +219,7 @@ export default function LetterGlitch({
 
   const handleSmoothTransitions = () => {
     let needsRedraw = false;
-    const step = isMobile ? 0.04 : 0.055;
+    const step = isMobile ? 0.07 : 0.08;
     letters.current.forEach((letter) => {
       if (letter.colorProgress < 1) {
         letter.colorProgress += step;
@@ -302,7 +307,7 @@ export default function LetterGlitch({
         /* noop */
       }
     };
-  }, [glitchSpeed, smooth, glitchColors.join(','), characters, isMobile, effectiveGlitchMs, updateFraction]);
+  }, [glitchSpeed, smooth, glitchColors.join(','), characters, isMobile, effectiveGlitchMs, updateFraction, maxLettersCap]);
 
   const containerStyle: CSSProperties = {
     position: 'absolute',
@@ -338,7 +343,7 @@ export default function LetterGlitch({
     width: '100%',
     height: '100%',
     pointerEvents: 'none',
-    background: 'radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 60%)',
+    background: 'radial-gradient(circle, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0) 62%)',
   };
 
   return (

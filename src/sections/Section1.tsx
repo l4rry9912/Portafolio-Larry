@@ -1,16 +1,55 @@
-import { useCallback, useState, memo } from 'react';
+'use client';
+import { useCallback, useEffect, useState, memo } from 'react';
 import Lanyard from '@/components/Lanyard.tsx';
 import LiquidEther from '@/components/LiquidEther';
 import { PERSONAL_INFO } from '@/lib/constants';
 import { smoothScrollToElementId } from '@/lib/smoothScroll';
-import { btnPrimary, btnSecondary, surfaceGlass } from '@/lib/sectionTheme';
+import { btnPrimary, btnSecondary } from '@/lib/sectionTheme';
 import { ArrowDown, Download, CheckCircle2 } from 'lucide-react';
 
 function Section1() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [scrollReleased, setScrollReleased] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const applyOverflow = (mobile: boolean, released: boolean) => {
+      const root = document.documentElement;
+      if (mobile && !released) {
+        document.body.style.overflow = 'hidden';
+        root.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+        root.style.overflow = '';
+      }
+    };
+
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      applyOverflow(mobile, scrollReleased);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize, { passive: true });
+
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [scrollReleased]);
 
   const handleScroll = useCallback(() => {
+    setScrollReleased(true);
+    if (typeof window !== 'undefined') {
+      const isMobile = window.innerWidth < 768;
+      if (isMobile) {
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+      }
+    }
     smoothScrollToElementId('proyectos', 880);
   }, []);
 
@@ -41,7 +80,7 @@ function Section1() {
       />
       {/* Fluido reactivo — glow y viñeta vía App.css (.liquid-ether-layer / .liquid-ether-mount) */}
       <div
-        className="liquid-ether-layer pointer-events-none absolute inset-0 z-[1] min-h-full opacity-[0.42] mix-blend-soft-light md:opacity-[0.52]"
+        className="liquid-ether-layer pointer-events-none absolute inset-0 z-[1] min-h-full opacity-[0.58] mix-blend-soft-light md:opacity-[0.56]"
         aria-hidden
       >
         <LiquidEther
@@ -64,7 +103,7 @@ function Section1() {
 
       {/* Copy: debajo del lanyard en pintura, legible con cristal */}
       <div className="relative z-20 mx-auto flex min-h-screen w-full max-w-4xl flex-col justify-center px-4 pb-48 pt-28 md:px-6 md:pb-56 md:pt-32">
-        <div className={`${surfaceGlass} p-8 shadow-[0_24px_80px_-16px_rgba(0,0,0,0.75)] backdrop-blur-2xl md:p-10`}>
+        <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-8 shadow-[0_6px_20px_-6px_rgba(0,0,0,0.35)] backdrop-blur-md md:bg-slate-950/45 md:p-10 md:backdrop-blur-xl md:shadow-[0_10px_28px_-10px_rgba(0,0,0,0.4)]">
           <h1 className="font-['Geist_Variable'] text-3xl font-bold leading-snug tracking-tight text-white sm:text-4xl md:text-5xl">
             Quiero{' '}
             <span className="bg-gradient-to-r from-sky-300 via-blue-400 to-indigo-400 bg-clip-text text-transparent">
@@ -127,7 +166,7 @@ function Section1() {
       </div>
 
       <div
-        className="pointer-events-none absolute bottom-0 left-0 z-[5] h-32 w-full bg-gradient-to-t from-slate-950 to-transparent"
+        className="pointer-events-none absolute bottom-0 left-0 z-[5] h-24 w-full bg-gradient-to-t from-slate-950/90 to-transparent md:h-28"
         aria-hidden
       />
     </section>

@@ -8,18 +8,15 @@ html {
   }
 }
 
-/* Glow + profundidad alrededor del fluido WebGL (LiquidEther) */
+/* LiquidEther: sombras mínimas para que el fluido se lea mejor (sobre todo en móvil) */
 .liquid-ether-layer {
-  filter: drop-shadow(0 32px 100px rgba(14, 165, 233, 0.42))
-    drop-shadow(0 0 85px rgba(129, 140, 248, 0.3))
-    drop-shadow(0 -24px 70px rgba(232, 121, 249, 0.12));
+  filter: drop-shadow(0 12px 28px rgba(14, 165, 233, 0.12));
 }
 
 .liquid-ether-mount {
   box-shadow:
-    inset 0 0 140px rgba(15, 23, 42, 0.55),
-    inset 0 -56px 160px rgba(2, 6, 23, 0.72),
-    0 0 100px rgba(14, 165, 233, 0.08);
+    inset 0 0 80px rgba(15, 23, 42, 0.22),
+    inset 0 -32px 90px rgba(2, 6, 23, 0.35);
 }
 
 /* CTAs de scroll largo: transiciones un poco más largas y suaves */
